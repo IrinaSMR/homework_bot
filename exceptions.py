@@ -20,9 +20,3 @@ class StatusException(Exception):
     """Исключение для проверки статуса в ответе API."""
 
     pass
-
-
-class VariableException(Exception):
-    """Исключение для проверки переменных окружения."""
-
-    pass

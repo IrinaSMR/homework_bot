@@ -30,7 +30,7 @@ HOMEWORK_STATUSES = {
 logging.basicConfig(
     level=logging.DEBUG,
     encoding='utf-8',
-    filename='program.log',
+    filename='main.log',
     format='%(asctime)s, %(levelname)s, %(message)s, %(name)s',
     filemode='a',
 )
@@ -116,28 +116,32 @@ def parse_status(homework):
 
 def check_tokens():
     """Проверяет наличие переменных окружения."""
-    return all([PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID])
+    if all([PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID]):
+        return True
+    else:
+        return False
 
 
 def main():
     """Основная логика работы бота."""
-    current_timestamp = int(time.time())
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    previous_response = 0
+    current_timestamp = 0
+    check_result = check_tokens()
+    if check_result is False:
+        message = 'Нет переменной окружения'
+        logger.critical(message)
+        raise SystemExit(message)
+
     while True:
         try:
             response = get_api_answer(current_timestamp)
-            check_response(response)
-            if response != previous_response:
-                previous_response = response
-                check_response(response)
-                message = parse_status(response.get('homeworks')[0])
-                send_message(bot, message)
-            if not check_tokens():
-                error_message = 'Нет переменной окружения!'
-                logger.error(error_message)
-                raise exceptions.VariableException(error_message)
-            current_timestamp = int(time.time())
+            if 'current_date' in response:
+                current_timestamp = response['current_date']
+            homework = check_response(response)
+            if homework is not None:
+                message = parse_status(homework)
+                if message is not None:
+                    send_message(bot, message)
             time.sleep(RETRY_TIME)
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
