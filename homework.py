@@ -1,5 +1,6 @@
-import logging, sys
+import logging
 import os
+import sys
 import time
 from http import HTTPStatus
 
@@ -39,6 +40,7 @@ logger.setLevel(logging.DEBUG)
 handler = logging.StreamHandler(stream=sys.stdout)
 logger.addHandler(handler)
 
+
 def send_message(bot, message):
     """Отправляет сообщение в чат Telegram."""
     try:
@@ -55,7 +57,8 @@ def get_api_answer(current_timestamp):
     try:
         answer = requests.get(ENDPOINT, headers=HEADERS, params=params)
         if answer.status_code != HTTPStatus.OK:
-            error_message = f'Неверный статус ответа: {answer.raise_for_status()}'
+            status = answer.raise_for_status()
+            error_message = f'Неверный статус ответа: {status}'
             logger.error(error_message)
             raise exceptions.GetAPIException(error_message)
         return answer.json()
@@ -105,7 +108,6 @@ def check_tokens():
 
 def main():
     """Основная логика работы бота."""
-
     if not check_tokens():
         message = 'Отсутствует переменная окружения'
         logger.critical(message)
@@ -128,14 +130,13 @@ def main():
             logger.info(f'Список домашних работ получен {len(homeworks)}')
             for item in homeworks:
                 send_message(bot, parse_status(item))
-            current_timestamp=int(time.time())
+            current_timestamp = int(time.time())
 
-   
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
             logger.exception(f'Возникла ошибка: {error}')
             send_message(bot, message)
-        
+
         time.sleep(RETRY_TIME)
 
 
