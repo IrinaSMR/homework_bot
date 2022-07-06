@@ -72,24 +72,24 @@ def get_api_answer(current_timestamp):
 def check_response(response):
     """Проверяет корректность ответа API."""
     try:
-        home_list = response['homeworks']
+        homework_list = response['homeworks']
     except KeyError as error:
         error_message = f'В словаре нет ключа homeworks {error}'
         logger.error(error_message)
         raise KeyError(error_message)
-    if not home_list:
+    if not homework_list:
         error_message = 'В ответе API нет списка домашних работ'
         logger.error(error_message)
         raise exceptions.APIResponseException(error_message)
-    if len(home_list) == 0:
+    if len(homework_list) == 0:
         error_message = 'На ревью ничего не отправлено'
         logger.error(error_message)
         raise exceptions.APIResponseException(error_message)
-    if not isinstance(home_list, list):
+    if not isinstance(homework_list, list):
         error_message = 'Домашние работы в ответе API выводятся не списком'
         logger.error(error_message)
         raise exceptions.APIResponseException(error_message)
-    return home_list
+    return homework_list
 
 
 def parse_status(homework):
@@ -121,25 +121,27 @@ def check_tokens():
 
 def main():
     """Основная логика работы бота."""
-    bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    current_timestamp = 0
-    check_result = check_tokens()
-    if check_result is False:
-        message = 'Нет переменной окружения'
+    if not check_tokens():
+        message = 'Отсутствует переменная окружения'
         logger.critical(message)
-        raise SystemExit(message)
+        SystemExit
+
+    bot = telegram.Bot(token=TELEGRAM_TOKEN)
+    current_timestamp = int(time.time())
 
     while True:
         try:
-            response = get_api_answer(current_timestamp)
-            if 'current_date' in response:
-                current_timestamp = response['current_date']
-            homework = check_response(response)
-            if homework is not None:
-                message = parse_status(homework)
-                if message is not None:
-                    send_message(bot, message)
+            api_response = get_api_answer(current_timestamp)
+            homeworks = check_response(api_response)
+            logger.info('Список домашних работ получен')
+            if ((type(homeworks) is list)
+                and (len(homeworks) > 0)
+                and homeworks):
+                send_message(bot, parse_status(homeworks[0]))
+            else:
+                logger.info('Домашние работы не найдены')
             time.sleep(RETRY_TIME)
+   
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
             logger.exception(f'Возникла ошибка: {error}')
