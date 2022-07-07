@@ -41,6 +41,7 @@ def send_message(bot, message):
         message = f'Не удалось отправить сообщение {error}'
         raise exceptions.SendMessageException(message)
 
+
 send_message.previous_message = ''
 
 
@@ -64,7 +65,7 @@ def get_api_answer(current_timestamp):
             return answer.json()
 
         except Exception as error:
-            error_message = 'Ошибка сериализации в json: {error}'
+            error_message = f'Ошибка сериализации в json: {error}'
             raise exceptions.JsonException(error_message)
 
 
