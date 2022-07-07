@@ -20,3 +20,8 @@ class StatusException(Exception):
     """Исключение для проверки статуса в ответе API."""
 
     pass
+
+class JsonException(Exception):
+    """Исключение при сериализации в json."""
+
+    pass

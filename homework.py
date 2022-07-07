@@ -64,7 +64,7 @@ def get_api_answer(current_timestamp):
 
         except Exception as error:
             error_message = 'Ошибка сериализации в json: {error}'
-            raise exceptions.JsonException(error_message)    
+            raise exceptions.JsonException(error_message)
 
 
 def check_response(response):
