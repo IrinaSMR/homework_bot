@@ -40,7 +40,8 @@ def send_message(bot, message):
     except Exception as error:
         message = f'Не удалось отправить сообщение {error}'
         raise exceptions.SendMessageException(message)
-send_message.previous_message = ''     
+
+send_message.previous_message = ''
 
 
 def get_api_answer(current_timestamp):
@@ -59,7 +60,7 @@ def get_api_answer(current_timestamp):
             error_message = f'Неверный статус ответа: {status}'
             raise exceptions.GetAPIException(error_message)
 
-        try:    
+        try:
             return answer.json()
 
         except Exception as error:
@@ -138,11 +139,11 @@ def main():
 
 if __name__ == '__main__':
     logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s, %(levelname)s, '
-           '%(name)s, %(funcName)s, '
-           '%(lineno)d, %(message)s',
-    filename='main.log',
+        level=logging.INFO,
+        format='%(asctime)s, %(levelname)s, '
+               '%(name)s, %(funcName)s, '
+               '%(lineno)d, %(message)s',
+        filename='main.log',
     )
 
     logger = logging.getLogger(__name__)
