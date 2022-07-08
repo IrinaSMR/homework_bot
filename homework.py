@@ -31,18 +31,12 @@ HOMEWORK_VERDICTS = {
 
 def send_message(bot, message):
     """Отправляет сообщение в чат Telegram."""
-    if message == send_message.previous_message:
-        return
     try:
         bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
         logger.info('Сообщение успешно отправлено')
-        send_message.previous_message = message
     except Exception as error:
         message = f'Не удалось отправить сообщение {error}'
         raise exceptions.SendMessageException(message)
-
-
-send_message.previous_message = ''
 
 
 def get_api_answer(current_timestamp):
@@ -52,7 +46,7 @@ def get_api_answer(current_timestamp):
         answer = requests.get(ENDPOINT, headers=HEADERS, params=params)
 
     except Exception as error:
-        error_message = f'Не удалось получить доступ к API: {error}'
+        error_message = f'Не удалось получить доступ к API: {error}, {params}'
         raise exceptions.GetAPIException(error_message)
 
     else:
@@ -119,6 +113,7 @@ def main():
         sys.exit()
 
     current_timestamp = 0
+    previous_error_message = ''
 
     while True:
         try:
@@ -131,8 +126,10 @@ def main():
 
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
+            if message != previous_error_message:
+                send_message(bot, message)
+                previous_error_message = message
             logger.exception(f'Возникла ошибка: {error}')
-            send_message(bot, message)
 
         finally:
             time.sleep(RETRY_TIME)
