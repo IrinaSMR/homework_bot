@@ -10,7 +10,7 @@ Telegram-бот на Python использующий API Яндекс.Домаш
 
 Клонируйте репозиторий и перейдите в него в командной строке:
 ```
-git clone https://github.com/alferius/homework_bot.git 
+git clone https://github.com/IrinaSMR/homework_bot.git 
 cd homework_bot
 ```
 
